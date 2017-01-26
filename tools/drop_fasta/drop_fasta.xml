@@ -1,0 +1,51 @@
+<tool id="drop_fasta" name="drop_fasta" version="0.2">
+    <description>Remove sequences based on ID from multifasta</description>
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+        <requirement type="package" >pandas</requirement>
+    </requirements>
+
+
+    <command interpreter="python">
+        $__tool_directory__/drop_fasta.py
+        -f ${multifasta}
+        -o output_file.fasta
+        -i ${identifier}
+    </command>
+
+    <inputs>
+        <param format="fasta" name="multifasta" type="data" label="Unfiltered multifasta" help=""/>
+        <param  name="identifier" type="text" label="ID of sequences to remove" help=""/>
+        
+        
+    </inputs>
+
+    <outputs>
+        <data format="fasta" name="output_file.fasta" label="multifasta" from_work_dir="output_file.fasta">
+            </data>
+
+    </outputs>
+    
+    <tests>
+    <!-- Empty -->
+    </tests>
+
+    <help>
+        
+.. class:: infomark
+
+**What it does**
+
+Removes unwanted sequences based on identifier from multifasta file.
+
+-------------
+
+.. class:: infomark
+
+**Tool Author**
+
+Brigida Rusconi
+
+
+    </help>
+</tool>

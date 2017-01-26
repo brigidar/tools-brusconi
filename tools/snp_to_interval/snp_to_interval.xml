@@ -1,0 +1,35 @@
+<tool id="snp_to_interval" name="snp location to interval" version="0.1">
+    <description>convert SNP to interval</description>
+    <requirements>
+    <requirement type="package" >pandas</requirement>
+    </requirements>
+    <command interpreter="python">
+          </command>
+    $__tool_directory__/snp_to_interval.py
+    -s ${snp}
+    -o ${interval}
+    <inputs>
+        <param name="snp" type="data" label="snp"/>
+        
+    </inputs>
+    <outputs>
+        <data name="interval" format="txt" label="${tool.name} on ${on_string}: interval"/>
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+        .. class:: infomark
+        
+        **What it does**
+        
+        converts SNPs to intervals (not normalized)
+        
+        -------------
+        
+        .. class:: infomark
+        
+        **Tool Author**
+        
+        Brigida Rusconi
+    </help>
+</tool>

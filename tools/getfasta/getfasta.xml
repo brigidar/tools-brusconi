@@ -1,0 +1,41 @@
+<tool id="bedtools_getfasta" name="extract fasta from bed" version="0.3.0">
+    
+    <description>
+    </description>
+    
+    <requirements>
+        <requirement type="package" version="2.24.0">bedtools</requirement>
+    </requirements>
+    
+    <command>
+        bedtools getfasta -fi '$input' -bed '$bedfile' -fo output.out
+    </command>
+    
+    <inputs>
+        <param format="fasta" name="input" type="data" label="fasta file from where to extract region"/>
+        <param name="bedfile" format="bed" type="data" label="bed file with regions"/>
+    </inputs>
+    
+    <outputs>
+        <data format="fasta" name="output"  from_work_dir="output.out" label="${input.name} (as fasta)"/>
+    </outputs>
+    
+    <help>
+        .. class:: infomark
+
+        **What it does**
+        
+        This tool converts a BED file into extracted fasta regions by using bedtools developed in the Quinlan Laboratory at University of Utah.
+        -------------
+        
+        .. class:: infomark
+        
+        **Wrapper Author**
+        
+        Brigida Rusconi
+
+        
+        
+        
+    </help>
+</tool>
