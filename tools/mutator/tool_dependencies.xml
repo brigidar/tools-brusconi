@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tool_dependency>
+        <tool_dependency>
+            <package name="snpmutator">
+                <repository changeset_revision="1:e7024641554c" name="package_snpmutator" owner="brigida-rusconi" toolshed="https://testtoolshed.g2.bx.psu.edu/" />
+            </package>
+</tool_dependency>

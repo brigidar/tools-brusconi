@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="snpmutator" version="0.2.0">
+        <install version="1.0">
+            <actions>
+                <action type="shell_command">pip install snp-mutator</action>
+            </actions>
+        </install>
+    <readme>installs snp-mutator developed by CFSAN</readme>
+    </package>
+</tool_dependency>
