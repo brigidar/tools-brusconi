@@ -1,0 +1,1 @@
+The Galaxy tools were developed for our SNPDV pipeline (Eppinger group in collaboration with A.L. Rodriguez at UTSA). Some are wrappers for existing tools and others are in-house python scripts to process the generated files. The tools and corresponding workflows will be made available through the Galaxy toolshed.

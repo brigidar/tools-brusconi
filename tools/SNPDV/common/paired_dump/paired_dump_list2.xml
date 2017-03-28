@@ -27,10 +27,8 @@
         
         Grabs all SRR linked to Bioproject number for Illumina paired reads
         
-        -------------
         
-        .. class:: infomark
-        
+        ::
         **Wrapper Author**
         
         Brigida Rusconi
