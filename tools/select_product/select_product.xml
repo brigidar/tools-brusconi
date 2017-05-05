@@ -1,11 +1,6 @@
 <tool id="select_product" name="select_product" version="0.6">
     <description>Product exclusion</description>
-    <requirements>
-        <requirements>
-            <requirement type="package" >biopython</requirement>
-        </requirements>
 
-    
     <command interpreter="python">
         $__tool_directory__/select_product.py -g $input_file -n $number -k $keys_1 -o $output_file
     </command>
@@ -20,15 +15,12 @@
     <outputs>
         <data format="tabular" name="output_file">
         </data>
-
-        
     </outputs>
     <stdio>
         <exit_code range="1:" />
     </stdio>
 
     <help>
-        
 .. class:: infomark
 
 **What it does**
@@ -36,15 +28,12 @@
 
 Finds all CDS that match the key words provided in the comma separated argument -k in the product description and adds a given number of bases on each side of the transcript for the exclusion set.
 
-
--------------
+-----
 
 .. class:: infomark
 
 **Tool Author**
 
 Brigida Rusconi
-
-
     </help>
 </tool>

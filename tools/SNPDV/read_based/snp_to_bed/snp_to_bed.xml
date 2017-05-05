@@ -1,0 +1,28 @@
+<tool id="snp_to_bed" name="snp location to bed format" version="0.3">
+    <description>convert SNP to interval</description>
+    <command>
+        cat $input1| awk -F "\t" -v OFS="\t" '{print $1, $2-1, $2}'>> $out_file1  </command>
+    <inputs>
+        <param name="input1" type="data" label="input file"/>
+    </inputs>
+    <outputs>
+        <data name="out_file1" format="bed" metadata_source="input1"/>
+    </outputs>
+
+    <help>
+.. class:: infomark
+
+**What it does**
+        
+converts SNPs to bed format for Freebayes or mpileup.
+        
+-----
+
+.. class:: infomark
+        
+**Wrapper Author**
+        
+Brigida Rusconi
+
+    </help>
+</tool>

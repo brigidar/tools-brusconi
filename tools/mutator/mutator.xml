@@ -24,20 +24,19 @@
     
     
     <help>
-        **What it does**
+.. class:: infomark
         
-        Generates mutated genomes from reference genome. Wrapper for CFSAN mutator.
-        https://snp-mutator.readthedocs.io/en/latest/index.html
+**What it does**
         
-        -------------
+Generates mutated genomes from reference genome. Wrapper for CFSAN mutator.
+https://snp-mutator.readthedocs.io/en/latest/index.html
         
-        .. class:: infomark
+-----
         
-        **Wrapper Author**
+.. class:: infomark
         
-        Brigida Rusconi
+**Wrapper Author**
         
-
-        
+Brigida Rusconi
     </help>
 </tool>

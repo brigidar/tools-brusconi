@@ -1,9 +1,6 @@
 <tool id="drop_fasta" name="drop_fasta" version="0.2">
     <description>Remove sequences based on ID from multifasta</description>
-    <requirements>
-        <requirement type="package" >biopython</requirement>
-        <requirement type="package" >pandas</requirement>
-    </requirements>
+
 
 
     <command interpreter="python">
@@ -38,7 +35,7 @@
 
 Removes unwanted sequences based on identifier from multifasta file.
 
--------------
+-----
 
 .. class:: infomark
 

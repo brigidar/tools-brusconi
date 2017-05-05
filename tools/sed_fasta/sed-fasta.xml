@@ -9,18 +9,18 @@
         <data name="out_file1" format="input" metadata_source="input1"/>
     </outputs>
     <help>
-        .. class:: infomark
+.. class:: infomark
         
-        **What it does**
+**What it does**
+
+Removes leading characters in fasta files downloaded from NCBI to match genbank locus tag.
         
-        Removes leading characters in fasta files downloaded from NCBI to match genbank locus tag.
+-----
         
-        -------------
+.. class:: infomark
         
-        .. class:: infomark
+**Wrapper Author**
         
-        **Wrapper Author**
-        
-        Brigida Rusconi
+Brigida Rusconi
     </help>
 </tool>

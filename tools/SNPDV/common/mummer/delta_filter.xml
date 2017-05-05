@@ -1,0 +1,48 @@
+<tool id="delta_filter" name="delta_filter" version="0.1">
+
+    <description>delta_filter</description>
+    <command>
+       delta-filter ${command_extra} ${input_delta}
+       >$out_tool
+    </command>
+    <stdio>
+       <regex match="1\: PREPARING DATA*\# CONSTRUCTIO" 
+           source="stderr" 
+           level="warning"
+           description="Just ignore this message that goes to stderr" />
+    </stdio>
+
+
+    <inputs>
+        <param type="data" format="tabular" name="input_delta"/>
+        <param name="command_extra" type="text" size="40" value="" label="Extra cmd line options" help="see specific cmd line options below" />
+        
+    </inputs>
+    <outputs>
+        <data name="out_tool" format="text" label="${input_delta.name}"/>
+
+    </outputs>
+    
+    <tests>
+    <!-- Empty -->
+    </tests>
+    <help>
+**Delta-Filter**
+
+.. class:: infomark
+
+**What it does**
+
+delta-filter is a utility program for the manipulation of the delta encoded alignment files output by the NUCmer and PROmer pipelines. It takes a delta file as input and filters the information based on the various command line switches, outputting only the desired alignments to stdout. Options to filter by alignment length, identity, uniqueness and consistency are provided. Certain combinations of these options can greatly reduce the number of unwanted alignments in the delta file, thus making the output of programs such as show-coords more comprehendible.
+
+http://mummer.sourceforge.net/manual/#filter
+
+-----
+
+.. class:: infomark
+
+**Wrapper Author**
+
+Brigida Rusconi
+    </help>
+</tool>

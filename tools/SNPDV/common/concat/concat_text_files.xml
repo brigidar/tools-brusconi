@@ -1,0 +1,30 @@
+<tool id="concat_text_files" name="Concat text files" version="1.0.0">
+    <description>Concatenates any text based files you select from your history</description>
+    <command>
+        cat #for $q in $input_files# $q #end for# > $out_file1
+    </command>
+    <inputs>
+        <param name="input_files" type="data" multiple="true" optional="false" format="txt" label="Input text files(s)" help="One or more FASTA files" />
+    </inputs>
+    <outputs>
+        <data name="out_file1" format="txt" metadata_source="input_files"/>
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+.. class:: infomark
+
+Just concatenates all the files selected from the given list
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez
+    </help>
+</tool>
+
+
+
