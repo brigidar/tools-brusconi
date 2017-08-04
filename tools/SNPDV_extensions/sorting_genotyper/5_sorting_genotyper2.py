@@ -4,17 +4,16 @@
 # Name	      :	5_sorting_genotyper2.py								#
 # Version     : 1.6									#
 # Project     : SNP table downstream analysis						#
-# Description : Script to summarize the genotyper output and classify according to groups etc. for tables that use * instead of Stop for stop codons		#
+# Description : Script to summarize the genotyper output and classify according to groups etc. for tables that use * for stop codon. Transitions and transversions are counted even if in multiallelic state (can be more than total amount of genes, since each allele represents a change.	#
 # Author      : Brigida Rusconi								#
-# Date        : March 10th, 2016							#
+# Date        : August 3rd, 2017							#
 #											#
 #########################################################################################
 
-import argparse, os, sys, csv
-import pdb
+import argparse, os, sys, csv,pdb
 from pandas import *
 
-#------------------------------------------------------------------------------------------------------------
+#-------------------argparse arguments-----------------------------------------------------------------------------------------
 
 #output and input file name
 parser = argparse.ArgumentParser()
@@ -29,150 +28,147 @@ output_file = args.output
 input_file = args.genotyper_table
 ref_genome= args.refgenome
 
-#------------------------------------------------------------------------------------------------------------
+#----------------file reading--------------------------------------------------------------------------------------------
 
 
 #read in files as dataframe
 df =read_csv(input_file, sep='\t', header=0, dtype=str)
 
 
-#------------------------------------------------------------------------------------------------------------
+#-------------------------PI/NI counting-----------------------------------------------------------------------------------
 
 ##get sums of total patterns, SYN, NSYN, Intergenic according to PI, NI and multiallelic state
 
+# total snp
 total=[df.index.size]
 
+#total of genes with snp
+genes=[(df.groupby('gene_name').size().index.size)-1]
 
-# get total of PI NI and add to total snps
-pl=[]
-nl=[]
-for name, group in df.groupby('Informative'):
-    nl.append(name)
+#total PI/NI
+nl_t=[df[df['Informative']=='NI'].index.size]
+pl_t=[total[0]-nl_t[0]]
+# get total of PI NI of genes
+gene_inf=df.groupby(['gene_name','Informative']).size().reset_index()
+nl=[gene_inf[(gene_inf['Informative']=='NI')].index.size]
+pl=[gene_inf[(gene_inf['Informative']!='NI')].index.size]
 
-for i in df.groupby('Informative').size():
-    pl.append(i)
-#------------------------------------------------------------------------------------------------------------
+#--------------------------------------------stop count----------------------------------------------------------------
 
+#total stop gains
+stop_t=[df[(df['syn?'].str.contains('NSYN')) & (df['query_aa'].str.contains('\*'))].index.size]
 
-#amount of genes with gain or kept stop
-st=df.groupby(['gene_name','query_aa']).size().reset_index(level=1)
-stop=[(st['query_aa'].str.contains('\*').sum())]
+#genes with gain of stop
+st=df.groupby(['gene_name','syn?','query_aa']).size().reset_index()
+stop_g=[st[(st['syn?'].str.contains('NSYN')) & (st['query_aa'].str.contains('\*'))].index.size]
 
-#amount of genes with loss or kept stop
-st2=df.groupby(['gene_name','ref_aa']).size().reset_index(level=1)
-stop2=[(st2['ref_aa'].str.contains('\*').sum())]
-#------------------------------------------------------------------------------------------------------------
+#total stop losses
+stop2_t=[df[(df['syn?'].str.contains('NSYN')) & (df['ref_aa'].str.contains('\*'))].index.size]
+                                   
+#genes with loss of stop
+st2=df.groupby(['gene_name','syn?','ref_aa']).size().reset_index()
+stop2_g=[st[(st['syn?'].str.contains('NSYN')) & (st2['ref_aa'].str.contains('\*'))].index.size]
 
-#amount of hypothetical genes
+#--------------------------------------hypothetical count----------------------------------------------------------------------
+#hypothetical SNPs
+hyp_t=[df[df['product'].str.contains('hypothetical')].index.size]
+                                   
+#hypothetical genes
 hyp=df.groupby(['gene_name','product']).size().reset_index(level=1)
-hypo=[(hyp['product'].str.contains('hypothetical').sum())]
-#------------------------------------------------------------------------------------------------------------
-#total amount of genes
+hypo=[hyp[hyp['product'].str.contains('hypothetical')].index.size]
 
-count=[]
-for i,v in enumerate(df.groupby('gene_name').size()):
-    count.append(i)
-genes=[count[-1]]
+#------------------------------------------multiallelic count------------------------------------------------------------------
 
 #total amount of multiallelic positions
-multi=[(df['query_codon'].str.contains('/').sum())]
-#------------------------------------------------------------------------------------------------------------
+multi_t=[(df['syn?'].str.contains('/').sum())]
+                                   
+#multallelic genes
+mult=df.groupby(['gene_name','query_codon']).size().reset_index()
+multi=[mult[mult['query_codon'].str.contains('/')].index.size]
 
-# counting number of transitions transversions:
+#-------------------------------------------transitions/transversions count-----------------------------------------------------------------
+#If more than 2 alleles will count total amount of transitions and transversions, which will be higher if there are multiallelic positions.
 
-ti_n=[]
-ti_g=[]
-for name, group in df.groupby('transition/transversion'):
-    ti_n.append(name)
-for i in df.groupby('transition/transversion').size():
-    ti_g.append(i)
+#total transitions
+trans_t=[df[df['transition/transversion']=='transition'].index.size]
+#total transversions
+trvs_t=[df[df['transition/transversion']=='transversion'].index.size]
 
-# make list with transition and transversion only to add to it the others with multiallelic state
-
-ti_n2=[]
-ti_g2=[]
-for i,v in enumerate(ti_n):
-    m=v.split('/')
-    if len(m)==1:
-        ti_n2.append(v)
-        ti_g2.append(ti_g[i])
-
-
-
-for i,v in enumerate(ti_n):
-    m=v.split('/')
-    if len(m)>1:
-        for t in m:
-            if t==ti_n2[0]:
-                ti_g2[0]=ti_g2[0] + ti_g[i]
-            elif t==ti_n2[1]:
-                ti_g2[1]=ti_g2[1] + ti_g[i]
+for i,v in enumerate(df['transition/transversion']):
+    if '/' in v:
+        m=v.split('/')
+        ts=trans_t[0]
+        tv=trvs_t[0]
+        ts+=m.count('transition')
+        tv+=m.count('transversion')
+    trans_t=[ts]
+    trvs_t=[tv]
 
 
-if len(ti_n2)>2:
-    sys.exit("error in transition/transversion column check snp table")
+gene_pro=df.groupby(['gene_name','transition/transversion']).size().reset_index()
+#Gene transitions
+trans_g=[gene_pro[gene_pro['transition/transversion'].str.contains('transition')].index.size]
 
+#Gene transversions
+trvs_g=[gene_pro[gene_pro['transition/transversion'].str.contains('transversion')].index.size]
 
-#------------------------------------------------------------------------------------------------------------
+#------------------------------------------total columns------------------------------------------------------------------
 #first row total values
-tot=total+pl+genes+stop+stop2+hypo+ti_g2+multi
-#------------------------------------------------------------------------------------------------------------
+tot=total+nl_t+pl_t+stop_t+stop2_t+hyp_t+trans_t+trvs_t+multi_t
+ #genes with column
+t_genes=genes+nl+pl+stop_g+stop2_g+hypo+trans_g+trvs_g+multi
 
+#---------------------------------------------subsetting by snp type---------------------------------------------------------------
 #counting number of syn/nsyn
-other_syn=DataFrame(df.groupby('syn?').size())
+data=DataFrame(df.groupby('syn?').size())
 
 
-#------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------PI/NI by subtype-----------------------------------------------------------
 #distribution of informative non-informative
 pi_dis= DataFrame(df.groupby(['syn?', 'Informative']).size()).reset_index(level=1)
-test=DataFrame(index=pi_dis.index)
+inf=DataFrame(index=pi_dis.index)
 for i,group in pi_dis.groupby('Informative'):
-    test=concat([test,group[0]], axis=1)
-test2=concat([other_syn,test], axis=1)
+    inf=concat([inf,group[0]], axis=1)
+data=concat([data,inf], axis=1)
 
-#------------------------------------------------------------------------------------------------------------
-#distribution of genes:
-gi_dis=df.groupby(['syn?', 'gene_name']).size().reset_index(level=0)
-gi_dis2=gi_dis.groupby('syn?').size()
-tes2=concat([test2,gi_dis2], axis=1)
+#------------------------------------------------stop by subtype------------------------------------------------------------
+# distribution of stops query, remove synonymous changes
 
-#------------------------------------------------------------------------------------------------------------
-
-# distribution of stops query
 si_dis= DataFrame(df.groupby(['syn?','query_aa']).size()).reset_index()
+
 tes=si_dis[si_dis['query_aa'].str.contains('\*')]
 si_dis2=tes.reset_index().groupby('syn?').sum()
+for i,v in enumerate(si_dis2.index):
+    if 'NSYN' not in v:
+        si_dis2[0][i]=0
 
-test3=concat([tes2,si_dis2.iloc[:,1]], axis=1, join_axes=[test.index])
-# distribution of stops reference
+data=concat([data,si_dis2.iloc[:,1]], axis=1, join_axes=[data.index])
+
+# distribution of stops reference, remove synonymous changes
 si_dis3= DataFrame(df.groupby(['syn?','ref_aa']).size()).reset_index()
 tes3=si_dis3[si_dis3['ref_aa'].str.contains('\*')]
 si_dis3=tes3.reset_index().groupby('syn?').sum()
+for i,v in enumerate(si_dis3.index):
+    if 'NSYN' not in v:
+        si_dis3[0][i]=0
 
-tes3=concat([test3,si_dis3.iloc[:,1]], axis=1, join_axes=[test.index])
+data=concat([data,si_dis3.iloc[:,1]], axis=1, join_axes=[data.index])
 
-#------------------------------------------------------------------------------------------------------------
-
-
+#-------------------------------------hypothetical by subtype-----------------------------------------------------------------------
 # distribution of hypothetical
 hy_dis= DataFrame(df.groupby(['product', 'syn?']).size()).reset_index(level=0)
 hy2=hy_dis[hy_dis['product'].str.contains('hypothetical')]
 hy3=hy2.reset_index().groupby('syn?').sum()
-test4=concat([tes3,hy3], axis=1, join_axes=[test.index])
-#------------------------------------------------------------------------------------------------------------
+data=concat([data,hy3], axis=1, join_axes=[data.index])
 
-
+#--------------------------------------transitions/transversions by subtype----------------------------------------------------------------------
 #distribution of transition transversion
 ti_dis=DataFrame(df.groupby(['syn?', 'transition/transversion']).size()).reset_index()
 ti=DataFrame(index=ti_dis.index)
-
 tl=[]
 r=[]
 rl=[]
-
 #get one value for transition and one for transversion
-
 for i,group in ti_dis.groupby('syn?'):
     tl.append([n for n in group['transition/transversion'].values])
     rl.append([n for n in group.iloc[:,2].values])#[n for n in
@@ -184,99 +180,64 @@ for i,m in enumerate(tl):
         for d in p:
             if d=='transition':
                 trans[i]+= rl[i][t]
-        
             elif d=='transversion':
                 trasv[i]+= rl[i][t]
+data.insert(data.columns.size, 'transition', trans)
+data.insert(data.columns.size, 'transversion', trasv)
 
-
-
-test4.insert(test4.columns.size, 'transition', trans)
-test4.insert(test4.columns.size, 'transversion', trasv)
-
-
-
-
-#------------------------------------------------------------------------------------------------------------
-
-
+#---------------------------------------------multiallelic by subtype---------------------------------------------------------------
 # distribution of multiallelic
-mu_dis= DataFrame(df.groupby(['query_codon', 'syn?']).size()).reset_index(level=0)
-mu2=mu_dis[mu_dis['query_codon'].str.contains('/')]
-mu3=mu2.reset_index().groupby('syn?').sum()
+mu_dis= DataFrame(df.groupby(['syn?']).size()).reset_index()
+for i,v in enumerate(mu_dis['syn?']):
+    if '/' not in v:
+        mu_dis.iloc[i,1]=0
+mu_dis=mu_dis.rename(columns = {0:'mul'}).set_index(['syn?'])
 
+#-----------------------------------------------concatenating table-------------------------------------------------------------
+data=concat([data,mu_dis['mul']], axis=1, join_axes=[data.index])
+data=data.T
+data.insert(0,'total',tot)
+data.insert(1,'Genes_with',t_genes)
+col=['SNPs']+['NI']+['PI']+['stop_gain']+['stop_loss']+['hypothetical proteins']+['transition']+['transversion']+['multiallelic']
+data.insert(0, 'header',col)
+data = data.fillna('0').set_index('header').astype('float64')
 
-#get ditsribution of the multiallelic states in the intergenic regions
-mu_int=df.groupby('syn?').get_group('intergenic')
-counter=0
-for i,n in enumerate(mu_int['snp_total']):
-    if len(n)==2:
-        counter+=1
-    elif len(n)==3:
-        counter+=2
-mu4=mu3.T
-mu4.insert(mu4.columns.size, 'intergenic', counter)
-mu5=mu4.T
-#------------------------------------------------------------------------------------------------------------
-test5=concat([test4,mu5], axis=1, join_axes=[test.index])
-test5=test5.T
-test5.insert(0,'total',tot)
-col=['SNPs']+[n for n in nl]+['genes']+['stop_gain']+['stop_loss']+['hypothetical proteins']+[n for n in ti_n2]+['multiallelic']
-test5.insert(0, 'header',col)
-test6 = test5.fillna('0').set_index('header').astype('float64')
-#remove count of intergenic in gene name
-test6.loc['genes','intergenic']=0
-#remove syn stop mutations
-names=[]
-for i in test6.columns.values:
-    names.append(i)
-if 'SYN' in names:
-    test6.loc['stop_gain','total']=test6.loc['stop_gain','total']-test6.loc['stop_gain','SYN']
-    test6.loc['stop_loss','total']=test6.loc['stop_loss','total']-test6.loc['stop_loss','SYN']
-    test6.loc['stop_loss','SYN']=test6.loc['stop_loss','SYN']-test6.loc['stop_loss','SYN']
-    test6.loc['stop_gain','SYN']=test6.loc['stop_gain','SYN']-test6.loc['stop_gain','SYN']
-
-
-
-# check back to string
-
-#------------------------------------------------------------------------------------------------------------
-#add a summary genic column
+#-------------------------------------------------summary genic-----------------------------------------------------------
+#add a summary genic column by selecting all columns that have SNPs in genes
+hed=data.columns[data.columns.str.contains('SYN')]
+gen=data.loc[:,hed]
 genic=[]
-for i,v in enumerate(test6.index):
-    gen=[n for n in test6.iloc[i,1:-1][:]]
-    genic.append(sum(gen))
+for i in range(0,gen.index.size):
+    g=gen.iloc[i,:].sum()
+    genic.append(g)
+data.insert(data.columns.size,'genic',genic)
 
-
-test6.insert(test6.columns.size,'genic',genic)
-#------------------------------------------------------------------------------------------------------------
-#pdb.set_trace()
-#calculate percentage
-perc=test6.copy(deep=True)
-perc2=DataFrame(index=[test6.index])
-#calculate percentage for each value
-for i in range(0,test6.columns.size):
-    mol=[n for n in (test6.iloc[:,i] / test6.iloc[0,i]  * 100)]
-    # since transition and transversion are separate for the multiallelic states the total has to be double for two state does not account for 3 state yet.
-    mol1=[n for n in (test6.iloc[-3:-1,i] / (test6.iloc[0,i] + test6.iloc[-1,i])  * 100)]
-    mol2=[test6.iloc[0,i]/test6.loc[test6.index[0],'total']*100]
-    mol1.append(mol[-1])
-    mol3=mol2+mol[1:-3]+mol1
-    perc2.insert(i,('% '+ str(test6.columns[i])),mol3)
-#pdb.set_trace()
-#------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------save file-----------------------------------------------------------
 #save summary table
 with open(output_file ,'w') as output:
-    perc.to_csv(output, sep='\t')
-#------------------------------------------------------------------------------------------------------------
+    data.to_csv(output, sep='\t')
+
+#---------------------------------------------transformation to percentage---------------------------------------------------------------
+#calculate percentage
+perc=data.copy(deep=True)
+perc2=DataFrame(index=[data.index])
+#calculate percentage for each value
+for i in range(0,data.columns.size):
+    mol=[n for n in (data.iloc[:,i] / data.iloc[0,i]  * 100)]
+    mol1=[n for n in (data.iloc[-3:-1,i] / (data.iloc[0,i] + data.iloc[-1,i])  * 100)]
+    mol2=[data.iloc[0,i]/data.loc[data.index[0],'total']*100]
+    mol1.append(mol[-1])
+    mol3=mol2+mol[1:-3]+mol1
+    perc2.insert(i,('% '+ str(data.columns[i])),mol3)
+
+#----------------------------------------------save percentage file--------------------------------------------------------------
 
 #save summary only percentage
 with open("percentage_summary.txt" ,'w') as output:
     perc2.to_csv(output, sep='\t')
-#------------------------------------------------------------------------------------------------------------
 
+#----------------------------------------------summary file--------------------------------------------------------------
 #summary of all groups and positions and genome names #http://wesmckinney.com/blog/filtering-out-duplicate-dataframe-rows/
-
 grouped = df.groupby('Group')
 index = [gp_keys[0] for gp_keys in grouped.groups.values()]
 unique = df.reindex(index).iloc[:,3:12].set_index('Group')
@@ -286,19 +247,17 @@ ls1=df.groupby(['Group', 'syn?']).size()
 ls2=ls1.reset_index(level=1)
 #change the name of the counting column
 ls2.rename(columns={0:'count_snp'}, inplace=True)
-#groups the amount of PI?NI for each one of the groups after dividing by SYN/NSYN
+#groups the amount of PI/NI for each one of the groups after grouping by SYN/NSYN
 lsp=df.groupby(['Group', 'syn?','Informative']).size()
 #keeps only the group as an index
 lsp2=lsp.reset_index(level=[1,2])
 #change the name of the counting column
 lsp2.rename(columns={0:'count_PI'}, inplace=True)
+
 #------------------------------------------------------------------------------------------------------------
-
 #take the refpos that match that group and put them with the molecule names
-
 blist=[]
 grouped=df.groupby(['Group', 'syn?'])
-
 for name, group in grouped:
     #restart the list for each subgrouping according to the type of mutation
     mol_list=[]
@@ -307,16 +266,13 @@ for name, group in grouped:
         mol_list.append(a+ ':'+'/'.join(rf))
 
     blist.append(', '.join(mol_list))
-
-
 #concatenates based on the longer index with the repeated groups with the join_axes command
 lst=concat([ls2, unique],axis=1, join_axes=[ls2.index])
 
-ni_ref=[]
+
 #------------------------------------------------------------------------------------------------------------
-
-
 #add column for group that is specific to the reference genome. if the group has only one kind of mutation syn/intergenic, etc then it will call a string instead of a series so we need to check first the class of the loc calling. takes argument with ref genome name.
+ni_ref=[]
 for i in lst.index:
     m=[]
     pat = ""
@@ -339,15 +295,13 @@ for i in lst.index:
         ni_ref.append('--')
 
 #------------------------------------------------------------------------------------------------------------
-
-
 #remove old PI column
 lst.insert(5, 'refpos split up',blist)
 lst.insert(lst.columns.size,'ref_genome', ni_ref)
-#------------------------------------------------------------------------------------------------------------
 
+#----------------------------------------------save summary file--------------------------------------------------------------
 sum_g=concat([lst.iloc[:,0:2],lst.iloc[:,4:]], axis=1)
-#pdb.set_trace()
+
 #save summary for group
 with open("summary_groups.txt",'w') as output:
     sum_g.to_csv(output, sep='\t')
