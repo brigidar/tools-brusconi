@@ -60,6 +60,7 @@ remove=args.remove
 #read in file as dataframe
 df =read_csv(input_file,sep='\t', dtype=object)
 df=df.set_index(['molecule','refpos'])
+
 #------------------------------------------------------------------------------------------
 # count for each genome amount of no hits and report so that we know which genome contributed more to no hits
 count_nohits=list()
@@ -72,32 +73,33 @@ for i,item in enumerate(df.columns):
         else:
             count_nohits.append((item.split('qbase:')[1], '0'))
 
-
 with open('no_hits.txt','w') as output:
     for i in count_nohits:
         output.write('\t'.join(i) + '\n')
 
-
-
-
-#replaces lines with "No Hits" with NaN and removes lines with NaN in qbase columns
-no_hit= df.mask(df=='No Hit')
-removed=no_hit.dropna()
-no_snp1=removed.mask(removed=='No SNP')
-no_snp=no_snp1.dropna()
-#pdb.set_trace()
-print "No Hit removed: SNP left " + str(removed.index.size)
-print "No SNP removed: SNP left " + str(no_snp.index.size)
-
-
-bases=['A','C','G','T']
-count_qbase=list(no_snp.columns.values)
+count_qbase=list(df.columns.values)
 qindexes=[]
 for i, v in enumerate(count_qbase):
     if 'qbase:' in v:
         qindexes.append(i)
-df2=no_snp.iloc[:,qindexes]
-df4=no_snp.loc[:,'refbase']
+
+print "Initial SNP count " + str(df.index.size)
+
+#replaces lines with "No Hits" with NaN and removes lines with NaN in qbase columns
+ex=df.iloc[:,qindexes]
+ex=ex.replace({'No SNP':'Z'},regex=True)
+ex=ex.replace({'No Hit':'Z'},regex=True)
+exclude=ex[ex.apply(lambda row: row.astype(unicode).str.contains('Z', case=False).any(), axis=1)]
+df=df[~df.index.isin(exclude.index)]
+
+print "Missing SNP removed: SNP left " + str(df.index.size)
+
+
+bases=['A','C','G','T']
+
+
+df2=df.iloc[:,qindexes]
+df4=df.loc[:,'refbase']
 df1=concat([df4,df2], axis=1, join_axes=[df2.index])
 cols=df1.columns
 
@@ -105,10 +107,14 @@ cols=df1.columns
 if remove=="True":
     df3=df1[~df1[cols].isin(bases).all(axis=1)].dropna(how='all')
     df1=df1[~df1.index.isin(df3.index)]
+    print "Non-canonical SNP removed: SNP left " + str( df1.index.size)
+    df1=df1[df1 !=i].dropna(how='all').fillna(i)
+    print "Identical positions removed: SNP left " + str( df1.index.size)
 else:
     for i in bases:
         df1=df1[df1 !=i].dropna(how='all').fillna(i)
-    print "identical lines removed: SNP left " + str( slash2.index.size)
+    print "Identical positions removed: SNP left " + str( df1.index.size)
+
 
 removed1=df1.T
 removed1.reset_index(inplace=True)
@@ -141,7 +147,7 @@ with open('table','rU') as input:
 #------------------------------------------------------------------------------------------
 df=df[df.index.isin(df1.index)]
 with open(output2_file,'w') as output2:
-    df.to_csv(output2, sep='\t', index=False)
+    df.to_csv(output2, sep='\t')
 
 #------------------------------------------------------------------------------------------
 

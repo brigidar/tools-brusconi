@@ -1,6 +1,9 @@
 <tool id="Filter_snp_table_assembly" name="filter_snp_table_assembly" version="0.3">
     <description>Filtered SNP table and fasta from assembies</description>
-
+    <requirements>
+        <requirement type="package">biopython</requirement>
+        <requirement type="package">pandas</requirement>
+    </requirements>
     <command interpreter="python">
         $__tool_directory__/2_sort_2.py
         -s ${snp_table}

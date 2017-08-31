@@ -95,14 +95,14 @@ trans_t=[df[df['transition/transversion']=='transition'].index.size]
 trvs_t=[df[df['transition/transversion']=='transversion'].index.size]
 
 for i,v in enumerate(df['transition/transversion']):
+    ts=trans_t[0]
+    tv=trvs_t[0]
     if '/' in v:
         m=v.split('/')
-        ts=trans_t[0]
-        tv=trvs_t[0]
         ts+=m.count('transition')
         tv+=m.count('transversion')
-    trans_t=[ts]
-    trvs_t=[tv]
+    trans_t[0]=ts
+    trvs_t[0]=tv
 
 
 gene_pro=df.groupby(['gene_name','transition/transversion']).size().reset_index()

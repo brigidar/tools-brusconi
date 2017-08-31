@@ -11,7 +11,7 @@
         
         -f ${exclude_file}
         
-        -o ${filtered_table}
+        -o output.txt
     </command>
     
     <inputs>
@@ -24,7 +24,7 @@
     <outputs>
         
         
-        <data name="filtered_table" format="tabular" label="${tool.name} on ${on_string}: filtered table"/>
+        <data name="output" format="tabular" label="${tool.name} on ${on_string}: filtered table" from_work_dir="output.txt"/>
         
     </outputs>
     
@@ -35,16 +35,16 @@
         
 **Example SNP Panel**:
 Takes a merged snp table and a tab delimited file of snp ranges for filtering in the format:
-        
-        ::
-        
-        molecule	start	stop
-        NC_011353.1	273971	274038
-        NC_011353.1	275213	276349
-        NC_011353.1	302573	314525
-        NC_011353.1	314624	332282
-        NC_011353.1	894469	933073
-        
+
+------
+
+    molecule    start   stop
+    NC_011353.1 273971  274038
+    NC_011353.1 275213  276349
+    NC_011353.1 302573  314525
+    NC_011353.1 314624  332282
+    NC_011353.1 894469  933073
+    
 ------
         
 .. class:: infomark

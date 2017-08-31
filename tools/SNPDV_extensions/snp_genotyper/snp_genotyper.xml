@@ -1,7 +1,9 @@
 <tool id="genotyper" name="genotyper tool" version="0.2">
     <description>generates genotypes from SNP table </description>
-
-
+    <requirements>
+        <requirement type="package">biopython</requirement>
+        <requirement type="package">pandas</requirement>
+    </requirements>
 
     <command interpreter="python">
         $__tool_directory__/snp_genotyper.py

@@ -7,13 +7,7 @@ import pdb
 import operator
 
 from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.Blast import NCBIXML
-from Bio.Blast import NCBIWWW
-from Bio.Blast import NCBIStandalone
-from Bio import SearchIO
-from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
-from Bio.SeqFeature import FeatureLocation
+
 
 
 #-------------------------------------------------------------------------------
@@ -68,17 +62,17 @@ class SNPTable:
         self.filtered_snps.sort(key=lambda x: x.pos)
         
         
-    self.write_file(out_file)
+        self.write_file(out_file)
 
 #-------------------------------------------------------------------------------
 
-def read_table_file(self, tf):
+    def read_table_file(self, tf):
     
-    with open(tf, 'rU') as input_handle:
+        with open(tf, 'rU') as input_handle:
         
-        for line in input_handle:
+            for line in input_handle:
             
-            parts = line.rstrip().split('\t')
+                parts = line.rstrip().split('\t')
                 
                 if parts[0] == "molecule" and parts[1] == "refpos":
                     
@@ -90,20 +84,18 @@ def read_table_file(self, tf):
 
 #-------------------------------------------------------------------------------
 
-def in_exclude(self, snp):
+    def in_exclude(self, snp):
     
-    try:
+        try:
         
-        
-        for s in self.exclude_list[snp.molecule]:
+            for s in self.exclude_list[snp.molecule]:
             
-            if s[0] < snp.pos < s[1]:
-                return True
-    
+                if s[0] < snp.pos < s[1]:
+                    return True
         except KeyError:
             return False
-
-return False
+    
+        return False
     
     #-------------------------------------------------------------------------------
     
@@ -111,24 +103,24 @@ return False
         
         with open(exclude_file, 'rU') as input_handle:
             
-            for l in input_handle.readlines():
+                for l in input_handle.readlines():
                 
-                parts = l.rstrip().split('\t')
+                    parts = l.rstrip().split('\t')
                 
-                if parts[0] == "molecule":
-                    continue
+                    if parts[0] == "molecule":
+                        continue
             
-                else:
+                    else:
                     
-                    self._add_to_exclude_list(parts[0], int(parts[1]), int(parts[2]))
+                        self._add_to_exclude_list(parts[0], int(parts[1]), int(parts[2]))
 
 #-------------------------------------------------------------------------------
 
-def _add_to_exclude_list(self, molecule, start, stop):
+    def _add_to_exclude_list(self, molecule, start, stop):
     
-    if self.exclude_list.has_key(molecule):
+        if self.exclude_list.has_key(molecule):
         
-        self.exclude_list[molecule].append( (start, stop) )
+            self.exclude_list[molecule].append( (start, stop) )
         
         else:
             
@@ -136,17 +128,17 @@ def _add_to_exclude_list(self, molecule, start, stop):
 
 #-------------------------------------------------------------------------------
 
-def write_file(self, out_file):
+    def write_file(self, out_file):
     
-    with open(out_file, 'w') as output_handle:
+        with open(out_file, 'w') as output_handle:
         
-        output_handle.write(self.header)
+            output_handle.write(self.header)
             
             for fs in self.filtered_snps:
                 
                 output_handle.write(fs.line)
         
-    print "Done writing the output to %s" % out_file
+                print "Done writing the output to %s" % out_file
 
 #-------------------------------------------------------------------------------
 #
@@ -161,27 +153,19 @@ def __main__():
     
     
     # Might have to change these
-    parser.add_argument('-s', '--snp-table', required=True, help="a snp table file", metavar="snp_panel_file")
-    parser.add_argument('-f', '--exclude-file', required=True, help="a template file", metavar="exclude_file")
+    parser.add_argument('-s', '--snp_table', required=True, help="a snp table file", metavar="snp_panel_file")
+    parser.add_argument('-f', '--exclude_file', required=True, help="a template file", metavar="exclude_file")
     parser.add_argument('-o', '--out', help="Output file for the merged table", metavar="sorted_snp_output_file")
     
-    
-    parser.add_argument('-l', '--exclude-list', nargs='*', help="""a list places to cull in the form:
-        
-        molecule_name:start_pos,stop_pos|start_pos,stop_pos|.../molecule_name:start_pos,stop_pos/molecule_name:start_pos,stop_pos
-        
-        With molecule name, colon, then pipe delimited list of start,stop positions.
-        """)
     
     
     
     args = parser.parse_args()
-    snp_table = SNPTable(table_file=args.s,
-                         out_file=args.o,
-                         exclude_file=args.f,
-                         exclude_list=args.l)
+    
+    #pdb.set_trace()
+    snp_table = SNPTable(table_file=args.snp_table,out_file=args.out,exclude_file=args.exclude_file)
                          
-    print "Done filtering %s to %s" % (args.s, args.o)
+    print "Done filtering %s to %s" % (args.snp_table, args.out)
 
 
 #-------------------------------------------------------------------------------

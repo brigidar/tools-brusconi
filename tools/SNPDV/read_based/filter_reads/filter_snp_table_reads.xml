@@ -1,6 +1,9 @@
 <tool id="Filter_snp_table_reads" name="filter_snp_table_reads" version="0.1">
     <description>Filtered SNP table and fasta from reads</description>
-
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+        <requirement type="package" >pandas</requirement>
+    </requirements>
     <command interpreter="python">
         $__tool_directory__/filter_reads.py
         -s ${snp_table}

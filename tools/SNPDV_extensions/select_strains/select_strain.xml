@@ -1,7 +1,10 @@
 <tool id="select strain" name="select strains in genotyper" version="0.4">
     <description>select strains in genoyper output</description>
 
-
+<requirements>
+    <requirement type="package">biopython</requirement>
+    <requirement type="package">pandas</requirement>
+</requirements>
 
     <command interpreter="python">
         $__tool_directory__/6_select_strain.py

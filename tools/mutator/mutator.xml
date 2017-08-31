@@ -5,7 +5,8 @@
     </requirements>
     <command>
         snpmutator.py -r $random -n $number -s $substitutions -i $insertions -d $deletions -o summary.tsv $genome;
-        rename -f 's/^dataset_[0-9]+/$genome.name/' *fasta
+        rename -f 's/^dataset_[0-9]+/$genome.name/' *fasta;
+        bash $__tool_directory__/rename.sh
         </command>
 
     <inputs>
@@ -20,6 +21,7 @@
         <collection name="list_output" type="list" label="$genome.name" >
             <discover_datasets pattern="(?P&lt;designation&gt;.+)\.fasta" format="fasta" ext="fasta" visible="true" />
         </collection>
+        <data name="summary.tsv" format="tsv" label="summary_mutations" from_work_dir="summary.tsv"/>
     </outputs>
     
     

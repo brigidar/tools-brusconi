@@ -1,6 +1,10 @@
 <tool id="genotyper_sort" name="genotyper summary" version="0.2">
     <description>summary of genoyper output</description>
 
+<requirements>
+    <requirement type="package">biopython</requirement>
+    <requirement type="package">pandas</requirement>
+</requirements>
 
     <command interpreter="python">
         $__tool_directory__/5_sorting_genotyper2.py

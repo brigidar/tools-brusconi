@@ -433,6 +433,8 @@ for i,n in enumerate(syn):
 
 #insert column in dataframe
 fin3.insert(0, 'syn?', syn)
+
+
 fin3=fin3.reset_index(level=1)
 
 #------------------------------------------------------------------------------------------
@@ -492,3 +494,33 @@ for i,f in enumerate(fin3.columns):
 #save total file for plotting -t option
 with open(output2_file,'w') as output2:
     fin3.to_csv(output2, sep='\t', index=False)
+
+
+
+
+
+
+
+
+#for v,i in enumerate(snp4):
+#    if i[0]=='A':
+#        snp4[v][0]='T'
+#    elif i[0]=='T':
+#        snp4[v][0]='A'
+#    elif i[0]=='C':
+#        snp4[v][0]='G'
+#    elif i[0]=='G':
+#        snp4[v][0]='C'
+#
+#for v,i in enumerate(ref_base):
+#    if i=='A':
+#        ref_base[v]='T'
+#    elif i=='T':
+#        ref_base[v]='A'
+#    elif i=='C':
+#        ref_base[v]='G'
+#    elif i=='G':
+#        ref_base[v]='C'
+#final=concat([df5,fin3],axis=1)
+#final=concat([df5.T,fin3.T],axis=1)
+
