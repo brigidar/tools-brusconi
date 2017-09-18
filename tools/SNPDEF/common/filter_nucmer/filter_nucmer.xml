@@ -1,0 +1,47 @@
+<tool id="filter_nucmer" name="filter nucmer" version="0.2">
+    <description>filters nucmer</description>
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+        <requirement type="package" >pandas</requirement>
+    </requirements>
+
+    <command interpreter="python">
+         $__tool_directory__/filter_nucmer.py
+        -n ${nucmer}
+        -o output.txt
+       
+        
+    </command>
+
+    <inputs>
+        <param format="txt" name="nucmer" type="data" label="Unfiltered nucmer" help=""/>
+        
+    </inputs>
+
+    <outputs>
+        <data format="txt" name="output_file" label="${nucmer.name}_filtered" from_work_dir="output.txt">
+            </data>
+    </outputs>
+    
+    <tests>
+    <!-- Empty -->
+    </tests>
+
+    <help>
+.. class:: infomark
+
+**What it does**
+
+selects repeated regions predicted by nucmer and reorders start and stop.
+
+-----
+
+.. class:: infomark
+
+**Tool Author**
+
+Brigida Rusconi
+
+
+    </help>
+</tool>

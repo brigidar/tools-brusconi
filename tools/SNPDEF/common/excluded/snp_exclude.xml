@@ -1,0 +1,88 @@
+<tool id="snp_sort" name="SNP Sort/Filter" version="1.0.0">
+    
+    <!-- Wrapper currently just works for the perl script supplied -->
+    <description>Filter and sort a SNP table by a list of SNP ranges</description>
+    <requirements>
+    <requirement type="package">biopython</requirement>
+    </requirements>
+    <command interpreter="python">
+        $__tool_directory__/snp_sort.py
+        
+        -s ${table}
+        
+        -f ${exclude_file}
+        
+        -o output.txt
+    </command>
+    
+    <inputs>
+        
+        <param name="table" format="tabular"  type="data" label="Input SNP table"/>
+        <param name="exclude_file" format="tabular" type="data" label="SNP exclude table"/>
+        
+    </inputs>
+    
+    <outputs>
+        
+        
+        <data name="output" format="tabular" label="${tool.name} on ${on_string}: filtered table" from_work_dir="output.txt"/>
+        
+    </outputs>
+    
+    
+    
+    <help>
+.. class:: infomark
+        
+**Example SNP Panel**:
+Takes a merged snp table and a tab delimited file of snp ranges for filtering in the format:
+
+------
+
+    molecule    start   stop
+    NC_011353.1 273971  274038
+    NC_011353.1 275213  276349
+    NC_011353.1 302573  314525
+    NC_011353.1 314624  332282
+    NC_011353.1 894469  933073
+    
+------
+        
+.. class:: infomark
+        
+**Tool Author**
+        
+Mando Rodriguez, with consulting from Brigida Rusconi
+        
+        
+------
+        
+.. class:: infomark
+        
+**Tool Help and Usage**
+        
+::
+        
+        
+        usage: snp_sort.py [-h] -s snp_panel_file -f exclude_file
+        [-o sorted_snp_output_file]
+        [-l [EXCLUDE_LIST [EXCLUDE_LIST ...]]]
+        
+        optional arguments:
+        -h, --help            show this help message and exit
+        -s snp_panel_file, --snp-table snp_panel_file
+        a snp table file
+        -f exclude_file, --exclude-file exclude_file
+        a template file
+        -o sorted_snp_output_file, --out sorted_snp_output_file
+        Output file for the merged table
+        -l [EXCLUDE_LIST [EXCLUDE_LIST ...]], --exclude-list [EXCLUDE_LIST [EXCLUDE_LIST ...]]
+        a list places to cull in the form: molecule_name:start
+        _pos,stop_pos|start_pos,stop_pos|.../molecule_name:sta
+        rt_pos,stop_pos/molecule_name:start_pos,stop_pos With
+        molecule name, colon, then pipe delimited list of
+        start,stop positions.
+        
+        
+    </help>
+</tool>

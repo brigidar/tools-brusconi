@@ -1,0 +1,43 @@
+<tool id="filter_blastn" name="filter blastn" version="0.2">
+    <description>filters blastn</description>
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+        <requirement type="package" >pandas</requirement>
+    </requirements>
+    <command interpreter="python">
+        $__tool_directory__/filter_blastn.py
+        -b ${blastn}
+        -o output.txt
+       
+        
+    </command>
+
+    <inputs>
+        <param name="blastn" type="data" label="Unfiltered blastn" help=""/>
+        
+    </inputs>
+
+    <outputs>
+        <data format="txt" name="output_file" label="${blastn.name}_filtered" from_work_dir="output.txt">
+            </data>
+    </outputs>
+    
+
+    <help>
+.. class:: infomark
+
+**What it does**
+
+selects blastn hits with 100% coverage and reorders start and stop numerically
+
+-----
+
+.. class:: infomark
+
+**Tool Author**
+
+Brigida Rusconi
+
+
+    </help>
+</tool>

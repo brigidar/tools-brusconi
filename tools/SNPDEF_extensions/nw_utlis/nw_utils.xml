@@ -1,0 +1,46 @@
+<tool id="nw_utils" name="nw_reroot" version="0.1">
+    <description>tree rerooting</description>
+    <requirements>
+        <requirement type="package" >newick_utils</requirement>
+    </requirements>
+    <command>
+            nw_reroot $tree $start $stop >output.nwk    </command>
+
+    <inputs>
+        <param format="nwk" name="tree" type="data" label="snp tree" help=""/>
+        <param name="start" type="text" label="Write 1st leaf name for rerooting" help=""/>
+        <param name="stop" type="text" label="Write  2nd leaf name for rerooting" help=""/>
+
+        
+    </inputs>
+
+    <outputs>
+        <data format="nwk" name="output.nwk" label="${tree.name}_reordered" from_work_dir="output.nwk">
+            </data>
+
+    </outputs>
+    
+    <stdio>
+        <regex match= "removed" source="stderr" level="warning" description="Just ignore this message that goes to stderr" />
+    </stdio>
+
+    <tests>
+    <!-- Empty -->
+    </tests>
+
+    <help>
+.. class:: infomark
+
+**What it does**
+
+Places the root of the tree according to the leaf names provided. Wrapper for nwutils nw_reroot command. More information on nw_utils can be found at http://cegg.unige.ch/newick_utils
+
+-----
+
+.. class:: infomark
+
+**Wrapper Author**
+
+Brigida Rusconi
+    </help>
+</tool>

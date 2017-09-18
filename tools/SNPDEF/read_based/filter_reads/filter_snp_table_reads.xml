@@ -1,0 +1,60 @@
+<tool id="Filter_snp_table_reads" name="filter_snp_table_reads" version="0.1">
+    <description>Filtered SNP table and fasta from reads</description>
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+        <requirement type="package" >pandas</requirement>
+    </requirements>
+    <command interpreter="python">
+        $__tool_directory__/filter_reads.py
+        -s ${snp_table}
+        -o output_file.fasta
+        -t total.txt
+        -r $remove
+        -c $recalc
+    </command>
+
+    <inputs>
+        <param format="txt" name="snp_table" type="data" label="Unfiltered snp table" help=""/>
+        <param name="remove" type="select" label="select false if you want to keep non-canonical" help="">
+            <option value="True" selected='True'>True</option>
+            <option value="False">False</option>
+         </param>
+        <param name="recalc" type="select" label="If a genome was removed put yes" help="">
+            <option value="No" selected='True'>No</option>
+            <option value="Yes">Yes</option>
+        </param>
+    </inputs>
+
+    <outputs>
+        <data format="fasta" name="output_file.fasta" label="${snp_table.name}_snp.fasta" from_work_dir="output_file.fasta">
+            </data>
+        <data format="tabular" name="total" label="filtered_${snp_table.name}.txt" from_work_dir="total.txt" >
+            </data>
+        <data format="tabular" name="no_hits" label="No_Hits_${snp_table.name}.txt" from_work_dir="no_hits.txt" >
+        </data>
+    </outputs>
+    
+    <stdio>
+        <regex match= "removed" source="stderr" level="warning" description="Just ignore this message that goes to stderr" />
+    </stdio>
+
+    <tests>
+    <!-- Empty -->
+    </tests>
+
+    <help>
+.. class:: infomark
+
+**What it does**
+
+Removes no SNPs and positions with no hit. Optional to remove SNPs derived from non-canonical nucleotides predicted from assemblies.
+
+-----
+
+.. class:: infomark
+
+**Tool Author**
+
+Brigida Rusconi
+    </help>
+</tool>

@@ -1,0 +1,43 @@
+<tool id="select strain" name="select strains in genotyper" version="0.4">
+    <description>select strains in genoyper output</description>
+
+<requirements>
+    <requirement type="package">pandas</requirement>
+</requirements>
+
+    <command interpreter="python">
+        $__tool_directory__/6_select_strain.py
+        -s ${snp_table}
+        -g ${genome}
+        -o output.txt
+    </command>
+
+    <inputs>
+        <param format="txt" name="snp_table" type="data" label="genotyper table"/>
+         <param name="genome" type="text" label="list of genomes"/>
+    </inputs>
+    <outputs>
+        <data format="txt" name="output_file" label="selected_genotyper.txt" from_work_dir="output.txt">
+            </data>
+        
+    </outputs>
+    
+
+    <help>
+        .. class:: infomark
+
+**What it does**
+
+selects strains from genotyper output
+
+-----
+
+.. class:: infomark
+
+**Tool Author**
+
+Brigida Rusconi
+
+
+    </help>
+</tool>

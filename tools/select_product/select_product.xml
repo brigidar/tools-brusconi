@@ -1,6 +1,8 @@
 <tool id="select_product" name="select_product" version="0.6">
     <description>Product exclusion</description>
-
+    <requirements>
+        <requirement type="package" >biopython</requirement>
+    </requirements>
     <command interpreter="python">
         $__tool_directory__/select_product.py -g $input_file -n $number -k $keys_1 -o $output_file
     </command>

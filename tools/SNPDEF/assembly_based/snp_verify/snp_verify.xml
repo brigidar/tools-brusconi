@@ -1,0 +1,275 @@
+<tool id="snp_verify" name="SNP Verify" version="1.16.0">
+
+    <!-- Wrapper currently just works for the perl script supplied -->
+    <!-- syntax for the tool xml  https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax -->
+    <description>Perform a verification of SNPs on BLAST data</description>
+    <requirements>
+        <requirement type="package">biopython</requirement>
+        <requirement type="package">pandas</requirement>
+    </requirements>
+
+    <command interpreter="python">
+        $__tool_directory__/snp_verify.py
+                    
+            --flanking-bases $flanking_bases
+
+
+            ## Read BLAST Inputs.
+            --blast ${blast_input}
+            #for $blast_input_file in $blast_input_files:
+              ${blast_input_file.additional_blast_input}
+            #end for
+
+            ## Read Genbank inputs.
+            --genbank ${genbank_input}
+            #for $genbank_input_file in $genbank_input_files:
+              ${genbank_input_file.additional_genbank_input}
+            #end for
+
+            ## Read snp panel inputs.
+            --snp-panel ${snp_panel_input}
+            #for $snp_panel_input_file in $snp_panel_input_files:
+              ${snp_panel_input_file.additional_snp_panel_input}
+            #end for
+
+
+            ## Read query genome inputs.
+            ## Using sed to remove the 'Galaxy' and only take out the piece of text within the brackets. Possibility for errors?
+            --query #for $q in $query_genome_input_files# $q:`echo ${q.name} | sed -e 's/^Galaxy[0-9]*\-\[//g' | sed -e 's/\]\..*$//g'` #end for
+
+
+            ## Here we collect the blast threshhold if any
+            --blast-threshold ${threshold}
+
+            ## Here we collect the blast length threshold if any
+            --blast-length-threshold ${length_threshold}
+
+
+            ## This sets the number of processors
+
+            #if $processing_mode.processing_mode_selector == 'threaded_mode':
+              #if (1 > int(str($processing_mode.num_threads_or_procs))):
+                --threads 16      
+              #else      
+                --threads ${processing_mode.num_threads_or_procs}  
+              #end if
+            #elif $processing_mode.processing_mode_selector == 'multiproc_mode':
+              --multiproc ${processing_mode.num_threads_or_procs}
+            #end if
+
+            --amino-table ${amino_table}
+
+            ## Outputs.
+            --out ${merged_table}
+            
+    </command>
+    <stdio>
+       <regex match="BiopythonExperimentalWarning" 
+           source="stderr" 
+           level="warning" 
+           description="Just ignore this message that goes to stderr. Just a biopython warning.\n" />
+    </stdio>
+    <inputs>
+
+	<param name="threshold" type="float" size="10" value="0.0" label="Minimal quality BLAST bitscore" help="Threshold for the BLAST records bitscore. Anything below will be pruned out."/>
+
+	<param name="length_threshold" type="integer" size="10" value="0" label="Minimal BLAST length to count as snp" help="Threshold for the BLAST length. Everything blast length over this value that doesn't match the refbase will be counted as a SNP. Enter a value less than 0 for (flanking base x 2 + 1)"/>
+
+	<param name="amino_table" type="integer" size="10" value="1" label="Amino translation table" help="The amino translation table to use when translating the extracted codons. It uses the ExtendedIUPACDNA class from BioPython. Table information can be found here: http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi"/>
+
+        
+        <conditional name="processing_mode">
+           <param name="processing_mode_selector" type="select" label="Processing Mode">
+
+             <option value="serial_mode" selected="true">Serial</option>
+             <option value="threaded_mode">Threaded</option>
+            <!-- Disabling the multiproc mode since it isn't efficient.
+             <option value="multiproc_mode">Multiproc</option>
+            -->
+           </param>
+
+           <when value="serial_mode">
+              <!-- do nothing here -->
+           </when>
+           <when value="threaded_mode">
+              <param name="num_threads_or_procs" type="integer" value="-1" label="Threads are in proportion to the number of SNPs being processed. A value of less than one will result in a threadpool around 30% of the number of SNPs." />
+           </when>
+           <when value="multiproc_mode">
+              <param name="num_threads_or_procs" type="integer" value="-1" label="Number of processors to use. -1 is equal to the number of CPUs on the machine." />
+           </when>
+
+
+        </conditional>
+
+
+
+
+        <param name="flanking_bases" type="integer" value="20" label="Number of bases on each side of the SNP positions in the reference genome" />
+
+
+        <!-- These are the inputs for the blast_results.list file that must be created  -->
+        <param format="txt" name="blast_input" type="data" label="Raw blast output result file" help=""/>
+        <repeat name="blast_input_files" title="Additional BLAST result files">
+            <param format="txt" name="additional_blast_input" type="data" label="Raw blast output result file" help=""/>
+        </repeat>
+
+
+        <!-- This is for the inputs to the reference_genbank.list  -->
+        <param format="gen" name="genbank_input" type="data" label="Genbank reference annotation file" help=""/>
+        <repeat name="genbank_input_files" title="Additional Genbank reference annotation">
+            <param format="gen" name="additional_genbank_input" type="data" label="Additional Genbank reference annotation" help=""/>
+        </repeat>
+
+
+        <!-- This is for the file that contains the snp panel inputs  -->
+        <param format="tabular" name="snp_panel_input" type="data" label="File with predicted SNP positions (SNP panel) in the reference genome(s)." help=""/>
+        <repeat name="snp_panel_input_files" title="Additional SNP panel files">
+            <param format="txt" name="additional_snp_panel_input" type="data" label="Additional SNP panel files" help=""/>
+        </repeat>
+
+
+        <!-- This is for the fasta file list for the query genome -->
+
+        <param name="query_genome_input_files" type="data" multiple="true" optional="false" format="fasta" size="50" label="Query Contig FASTA file" help="The plugin will attempt to parse out the Galaxy*-[file]. from the input and only put the filename in the column header">
+        </param>
+
+
+
+    </inputs>
+
+    <outputs>
+
+        <data format="tabular" name="merged_table" label="${tool.name} on ${on_string}: merged tables"/>
+        
+    </outputs>
+
+    <tests>
+        <!--
+            Nothing yet
+        -->
+        <test>
+ 
+
+        </test>
+    </tests>
+
+    <help>
+.. class:: warningmark
+
+**This tool currently only works on raw text blast result files.**
+
+------
+
+.. class:: infomark
+
+**What it does**
+
+The SNP verify takes a set of snp positions along with file lists consisting of raw blast output files, query contig FASTA files, and genbank annotation files and
+collects the nucleotides that are at the various SNP positions that are found in the blast hits. Additional information like the codon that the SNP is located in,
+as well as gene information from the genbank files, and translation informations are all compiled into a tab delimited merged table.
+
+------
+
+.. class:: infomark
+
+**Example SNP Panel**
+
+Here's an example of what a tab delimited SNP panel file looks like::
+
+  AE003852.1	53458
+  AE003852.1	53471
+  AE003852.1	53506
+  AE003852.1	53521
+
+The first column is the molecule name as referenced in the genbank file. The second column is the SNP position.
+
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez M.S, with consulting from Brigida Rusconi Ph.D
+
+
+------
+
+.. class:: infomark
+
+**Tool Help and Usage**
+
+::
+
+
+ usage: snp_verify.py [-h] [-w bfiles.list]
+		      [-b [bfile.blastn [bfile.blastn ...]]] [-r gbfiles.list]
+		      [-g [gbfile.gb [gbfile.gb ...]]] [-y snp_panel.list]
+		      [-s [snp_panel.tabular [snp_panel.tabular ...]]]
+		      [-z qfiles.list] [-q [qfile.fasta [qfile.fasta ...]]] -f
+		      FLANKING_BASES [-o merged_table.txt] [-t BLAST_THRESHOLD]
+		      [-l BLAST_LENGTH_THRESHOLD] [-a AMINO_TABLE] [-v]
+		      [-m MULTIPROC | -n THREADS]
+
+ optional arguments:
+   -h, --help            show this help message and exit
+   -f FLANKING_BASES, --flanking-bases FLANKING_BASES
+			 Number of bases on *each side* of the SNP positions in
+			 the reference genome.
+   -o merged_table.txt, --out merged_table.txt
+			 Output file for the merged table
+   -t BLAST_THRESHOLD, --blast-threshold BLAST_THRESHOLD
+			 Takes a percentage for a blast score as an int or
+			 decimal: ex 80% can be 80 or 0.8
+   -l BLAST_LENGTH_THRESHOLD, --blast-length-threshold BLAST_LENGTH_THRESHOLD
+			 The minimum length of a blast hit to count as a SNP
+   -a AMINO_TABLE, --amino-table AMINO_TABLE
+			 The amino table to use when translating codons.
+			 Default is 1.
+   -v, --version         show program's version number and exit
+   -m MULTIPROC, --multiproc MULTIPROC
+			 Number of processes to use
+   -n THREADS, --threads THREADS
+			 Number of threads to use
+
+ BLAST result files:
+   Raw text output from a blastn run
+
+   -w bfiles.list, --blast-list-file bfiles.list
+			 a file with a list to blast files to parse, with one
+			 per line
+   -b [bfile.blastn [bfile.blastn ...]], --blast [bfile.blastn [bfile.blastn ...]]
+			 a list of raw blast files separated by spaces
+
+ Genbank files:
+   Genbank files
+
+   -r gbfiles.list, --genbank-list-file gbfiles.list
+			 A file that contains a list of genbank files with one
+			 per line
+   -g [gbfile.gb [gbfile.gb ...]], --genbank [gbfile.gb [gbfile.gb ...]]
+			 list of genbank annotation files separated by spaces
+
+ SNP panel files:
+   Contains a molecule name that maps to the Genbank annotation along with a
+   SNP position, one per line
+
+   -y snp_panel.list, --snp-panel-list-file snp_panel.list
+			 A file that contains a list of snp panel files with
+			 one per line
+   -s [snp_panel.tabular [snp_panel.tabular ...]], --snp-panel [snp_panel.tabular [snp_panel.tabular ...]]
+			 list of snp position files separated by spaces
+
+ Query Contig FASTA files:
+   FASTA files that contain extracted regions from a genome. Query Contig
+   files can be listed with a metaname appended via a colon
+   'query_file:meta_name'. The meta_name will be present in the table column
+   header.
+
+   -z qfiles.list, --query-list-file qfiles.list
+			 File with list of query genomes with one per line
+   -q [qfile.fasta [qfile.fasta ...]], --query [qfile.fasta [qfile.fasta ...]]
+			 list of query files separated by spaces.
+
+   </help>
+</tool>

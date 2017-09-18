@@ -1,0 +1,112 @@
+<tool id="extract_snp_regions" name="Extract SNP Region" version="1.4">
+    
+    <!-- syntax for the tool xml  https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax -->
+    <description>Extract flanking SNP region from Genbank file</description>
+    <requirements>
+        <requirement type="package">biopython</requirement>
+    </requirements>
+    
+    <command interpreter="python">
+        $__tool_directory__/extract_snp_regions.py
+
+            --ref-genbank $ref_genbank
+        
+            --snp-positions $snp_positions
+
+            --flanking-bases $flanking_bases
+
+            ## Outputs.
+            --out ${extracted_snps}
+
+
+    </command>
+    
+    <inputs>
+
+        <param format="gen" name="ref_genbank" type="data" label="Flat Genbank File with sequence" help=""/>
+
+        <param format="txt" name="snp_positions" type="data" label="File with predicted SNP positions (SNP Panel)" help=""/>
+
+        <param format="integer" name="flanking_bases" type="integer" value="20"
+            label=" Number of bases on *each side* of the SNP positions in ref genome. Default is 20" />
+
+        
+    </inputs>
+
+    <outputs>
+    
+        <data format="fasta" name="extracted_snps" label="${tool.name} on ${on_string}: extracted snps"/>
+
+
+    </outputs>
+
+    <tests>
+        
+        <test>
+    
+
+        </test>
+                
+            
+    </tests>
+
+    <help>
+.. class:: infomark
+
+**What it does**
+
+Extracts a snp position from a given SNP panel file from a coorespinding genbank file, flanked on both sides
+by nucleotides of the given flanking base.
+
+------
+
+.. class:: infomark
+
+**Example SNP Panel**
+
+Here's an example of what a tab delimited SNP panel file looks like::
+
+  AE003852.1	53458
+  AE003852.1	53471
+  AE003852.1	53506
+  AE003852.1	53521
+
+The first column is the molecule name as referenced in the genbank file. The second column is the SNP position.
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez
+
+
+------
+
+.. class:: infomark
+
+**Tool Help and Usage**
+
+::
+
+  usage: extract_snp_regions.py [-h] [-f FLANKING_BASES] -s SNP_POSITIONS -g
+                              REF_GENBANK [-o OUTPUT_FILE]
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -f FLANKING_BASES, --flanking_bases FLANKING_BASES
+                          Number of bases on *each side* of the SNP positions in
+                          the reference genome. Default is 20.
+    -s SNP_POSITIONS, --snp_positions SNP_POSITIONS
+                          snp panel file
+    -g REF_GENBANK, --ref_genbank REF_GENBANK
+                          genbank annotation file
+    -o OUTPUT_FILE, --output_file OUTPUT_FILE
+                          output file
+
+
+
+
+    </help>
+</tool>

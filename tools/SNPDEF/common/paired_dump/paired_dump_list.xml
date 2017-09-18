@@ -1,0 +1,40 @@
+<tool id="fastq_dump_Bioproject_paired" name="Bioproject Fastq Dump paired" version="0.5">
+    <description>Downloads SRR files based on Bioproject nb</description>
+    <requirements>
+        <requirement type="package" >entrez-direct</requirement>
+        <requirement type="package" >sra-tools</requirement>
+    </requirements>
+    <command>
+      bash $__tool_directory__/paired_dump.sh $Bioproject
+        
+        </command>
+
+    <inputs>
+        <param name="Bioproject" type="text" label="Bioproject number"/>
+    </inputs>
+    <outputs>
+        <collection name="list_output" type="list:paired" label="$Bioproject">
+            <!-- Use named regex group to grab pattern
+             <identifier_0>_<identifier_1>.fq. Here identifier_0 is the list
+             identifier in the nested collection and identifier_1 is either
+             forward or reverse (for instance samp1_forward.fq).
+             -->
+            <discover_datasets pattern="(?P&lt;identifier_0&gt;[^_]+)_(?P&lt;identifier_1&gt;[^_]+)\.fq" ext="fastqsanger" visible="true" />
+        </collection>
+    </outputs>
+    <help>
+.. class:: infomark
+        
+**What it does**
+        
+Grabs all SRR linked to Bioproject number for Illumina paired reads.
+        
+-----
+        
+.. class:: infomark
+        
+**Tool Author**
+        
+Brigida Rusconi
+    </help>
+</tool>
